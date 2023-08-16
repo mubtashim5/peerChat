@@ -10,11 +10,21 @@ let localStream;
 let remoteStream;
 let peerConnection;
 
+// const servers = {
+//     iceServers: [
+//         {
+//             urls: ['stun:stun1.l.google.com:19302',
+//                    'stun:stun2.l.google.com:19302']
+//         }
+//     ]
+// }
+
 const servers = {
     iceServers: [
         {
-            urls: ['stun:stun1.l.google.com:19302',
-                   'stun:stun2.l.google.com:19302']
+            url: 'turn:numb.viagenie.ca',
+            credential: 'muazkh',
+            username: 'webrtc@live.com'
         }
     ]
 }
@@ -27,6 +37,7 @@ let init = async() => {
     await channel.join()
 
     channel.on('MemberJoined', handleUserJoined)
+    channel.on('MemberLeft', handleUserLeft)
 
     client.on('MessageFromPeer', handleMessageFromPeer)
 
@@ -35,6 +46,10 @@ let init = async() => {
         audio : false
     })
     document.getElementById('user-1').srcObject = localStream
+}
+
+let handleUserLeft = (MemberId) => {
+    document.getElementById('user-2').style.display = 'none'
 }
 
 let handleMessageFromPeer = async (message, MemberId) => {
@@ -65,6 +80,7 @@ let createPeerConnection = async (MemberId) => {
 
     remoteStream = new MediaStream()
     document.getElementById('user-2').srcObject = remoteStream
+    document.getElementById('user-2').style.display = 'block'
 
     if (!localStream) {
         localStream = await navigator.mediaDevices.getUserMedia({
@@ -115,5 +131,12 @@ let addAnswer = async (answer) => {
         peerConnection.setRemoteDescription(answer)
     }
 }
+
+let leaveChannel = async () => {
+    await channel.leave()
+    await client.logout()
+}
+
+window.addEventListener('beforeunload', leaveChannel)
 
 init()
