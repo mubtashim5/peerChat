@@ -6,6 +6,14 @@ let uid = String(Math.floor(Math.random() * 10000))
 let client;
 let channel;
 
+let queryString = window.location.search
+let urlParams = new URLSearchParams(queryString)
+let roomId = urlParams.get('room')
+
+if (!roomId) {
+    window.location = 'lobby.html'
+}
+
 let localStream;
 let remoteStream;
 let peerConnection;
@@ -19,24 +27,25 @@ let peerConnection;
 //     ]
 // }
 
-// const servers = {
-//     iceServers: [
-//         {
-//             // url: 'turn:numb.viagenie.ca',
-//             // credential: 'muazkh',
-//             // username: 'webrtc@live.com'
-//             url: 'turn:192.158.29.39:3478?transport=udp',
-//             credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-//             username: '28224511:1379330808'
-//         }
-//     ]
-// }
+const servers = {
+    iceServers: [
+        {
+            // url: 'turn:numb.viagenie.ca',
+            // credential: 'muazkh',
+            // username: 'webrtc@live.com'
+            url: 'turn:192.158.29.39:3478?transport=udp',
+            credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            username: '28224511:1379330808'
+        }
+    ]
+}
 
 let init = async() => {
     client = await AgoraRTM.createInstance(APP_ID)
     await client.login({uid, token})
 
-    channel = client.createChannel('main')
+    // channel = client.createChannel('main')
+    channel = client.createChannel(roomId)
     await channel.join()
 
     channel.on('MemberJoined', handleUserJoined)
@@ -79,34 +88,34 @@ let handleUserJoined = async(MemberId) => {
 }
 
 let createPeerConnection = async (MemberId) => {
-    // peerConnection = new RTCPeerConnection(servers)
-    peerConnection = new RTCPeerConnection({
-        iceServers: [
-            {
-              urls: "stun:stun.relay.metered.ca:80",
-            },
-            {
-              urls: "turn:a.relay.metered.ca:80",
-              username: "42452f86614ef4310e1c1027",
-              credential: "TE7tdLuKhPZh7Q3o",
-            },
-            {
-              urls: "turn:a.relay.metered.ca:80?transport=tcp",
-              username: "42452f86614ef4310e1c1027",
-              credential: "TE7tdLuKhPZh7Q3o",
-            },
-            {
-              urls: "turn:a.relay.metered.ca:443",
-              username: "42452f86614ef4310e1c1027",
-              credential: "TE7tdLuKhPZh7Q3o",
-            },
-            {
-              urls: "turn:a.relay.metered.ca:443?transport=tcp",
-              username: "42452f86614ef4310e1c1027",
-              credential: "TE7tdLuKhPZh7Q3o",
-            },
-        ],
-      });
+    peerConnection = new RTCPeerConnection(servers)
+    // peerConnection = new RTCPeerConnection({
+    //     iceServers: [
+    //         {
+    //           urls: "stun:stun.relay.metered.ca:80",
+    //         },
+    //         {
+    //           urls: "turn:a.relay.metered.ca:80",
+    //           username: "42452f86614ef4310e1c1027",
+    //           credential: "TE7tdLuKhPZh7Q3o",
+    //         },
+    //         {
+    //           urls: "turn:a.relay.metered.ca:80?transport=tcp",
+    //           username: "42452f86614ef4310e1c1027",
+    //           credential: "TE7tdLuKhPZh7Q3o",
+    //         },
+    //         {
+    //           urls: "turn:a.relay.metered.ca:443",
+    //           username: "42452f86614ef4310e1c1027",
+    //           credential: "TE7tdLuKhPZh7Q3o",
+    //         },
+    //         {
+    //           urls: "turn:a.relay.metered.ca:443?transport=tcp",
+    //           username: "42452f86614ef4310e1c1027",
+    //           credential: "TE7tdLuKhPZh7Q3o",
+    //         },
+    //     ],
+    //   });
 
     remoteStream = new MediaStream()
     document.getElementById('user-2').srcObject = remoteStream
