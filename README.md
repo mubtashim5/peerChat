@@ -1,1 +1,1 @@
-# peerChat.github.io
+# peerChat
